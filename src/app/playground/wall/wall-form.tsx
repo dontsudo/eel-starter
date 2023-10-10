@@ -1,5 +1,5 @@
+import * as React from "react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
@@ -10,54 +10,24 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useProjectStore } from "@/hooks/use-project-store";
+
+import { wallSchema, Wall } from "../data/data";
 import { useToast } from "@/components/ui/use-toast";
 
-export const wallSchema = z.object({
-  단면적: z.preprocess(
-    (args) => (args === "" ? undefined : args),
-    z.coerce
-      .number({
-        invalid_type_error: "시작심도는 숫자여야 합니다.",
-      })
-      .positive({
-        message: "시작심도는 양수여야 합니다.",
-      })
-  ),
-  단면2차모멘트: z.preprocess(
-    (args) => (args === "" ? undefined : args),
-    z.coerce
-      .number({
-        invalid_type_error: "시작심도는 숫자여야 합니다.",
-      })
-      .positive({
-        message: "시작심도는 양수여야 합니다.",
-      })
-  ),
-  탄성계수: z.preprocess(
-    (args) => (args === "" ? undefined : args),
-    z.coerce
-      .number({
-        invalid_type_error: "시작심도는 숫자여야 합니다.",
-      })
-      .positive({
-        message: "시작심도는 양수여야 합니다.",
-      })
-  ),
-});
-
-export type WallFormValues = z.infer<typeof wallSchema>;
-
-export function WallForm() {
+export const WallForm: React.FC = () => {
   const { toast } = useToast();
+  const addWall = useProjectStore((state) => state.addWall);
 
-  const form = useForm<WallFormValues>({
+  const form = useForm<Wall>({
     resolver: zodResolver(wallSchema),
     mode: "onChange",
   });
 
-  function onSubmit(data: WallFormValues) {
+  const onSubmit = (data: Wall) => {
+    addWall(data);
     toast({
       title: "You submitted the following values:",
       description: (
@@ -66,12 +36,14 @@ export function WallForm() {
         </pre>
       ),
     });
-  }
+
+    form.reset();
+  };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid gap-4">
           <FormField
             control={form.control}
             name="단면적"
@@ -79,7 +51,12 @@ export function WallForm() {
               <FormItem>
                 <FormLabel>단면적</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} />
+                  <Input
+                    {...field}
+                    type="number"
+                    min={0}
+                    value={field.value ?? ""}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -92,7 +69,12 @@ export function WallForm() {
               <FormItem>
                 <FormLabel>단면2차모멘트</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} />
+                  <Input
+                    {...field}
+                    type="number"
+                    min={0}
+                    value={field.value ?? ""}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -105,19 +87,22 @@ export function WallForm() {
               <FormItem>
                 <FormLabel>탄성계수</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} />
+                  <Input
+                    {...field}
+                    type="number"
+                    min={0}
+                    value={field.value ?? ""}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-        <div className="flex justify-end">
-          <Button type="submit" className="mt-4">
-            추가
-          </Button>
-        </div>
+        <Button type="submit" className="w-full mt-4">
+          추가
+        </Button>
       </form>
     </Form>
   );
-}
+};
