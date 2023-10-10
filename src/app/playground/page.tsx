@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/hover-card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { CubeIcon, ResetIcon } from "@radix-ui/react-icons";
 import { SoilForm } from "./soil/soil-form";
@@ -21,9 +20,30 @@ import { columns as soilColumns } from "./soil/columns";
 import { columns as excavationColumns } from "./excavation/columns";
 import { wallColumns } from "./wall/columns";
 import { anchorColumns } from "./anchor/anchor-columns";
+import { Analytics } from "./components/analytics";
+import { useToast } from "@/components/ui/use-toast";
+import { CalculatorIcon } from "lucide-react";
+import { eel } from "@/lib/eel";
 
 const PlaygroundPage: React.FC = () => {
+  const { toast } = useToast();
   const project = useProjectStore();
+
+  const onSubmit = async () => {
+    const response = await eel.say_hello_py(project)();
+
+    console.log(response);
+    toast({
+      title: "You submitted the following values:",
+      description: (
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4 text-white">
+          <code className="text-white">
+            {JSON.stringify(response, null, 2)}
+          </code>
+        </pre>
+      ),
+    });
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -37,74 +57,62 @@ const PlaygroundPage: React.FC = () => {
         </div>
       </div>
       <Separator />
-      <div className="flex-1">
-        <div className="container h-full py-6">
-          <div className="grid h-full items-stretch gap-4 md:grid-cols-[1fr_500px]">
-            <Tabs
-              defaultValue="soil"
-              className="hidden flex-col space-y-4 sm:flex md:order-2"
-            >
-              <div className="grid gap-2">
-                <HoverCard openDelay={200}>
-                  <HoverCardTrigger asChild>
-                    <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                      설정 값
-                    </span>
-                  </HoverCardTrigger>
-                  <HoverCardContent className="w-[320px] text-sm" side="left">
-                    입력값의 단위는 표준 단위계를 따릅니다.
-                  </HoverCardContent>
-                </HoverCard>
-                <TabsList className="grid grid-cols-4">
-                  <TabsTrigger value="soil">
-                    <span>지반물성치</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="excavation">
-                    <span>굴착깊이</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="wall">
-                    <span>벽체</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="anchor">
-                    <span>앵커</span>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-              <TabsContent value="soil" className="">
-                <DataTable columns={soilColumns} data={project.soil} />
-                <SoilForm />
-              </TabsContent>
-              <TabsContent value="excavation" className="">
-                <DataTable
-                  columns={excavationColumns}
-                  data={project.excavation}
-                />
-                <ExcavationForm />
-              </TabsContent>
-              <TabsContent value="wall" className="">
-                <DataTable columns={wallColumns} data={project.wall} />
-                <WallForm />
-              </TabsContent>
-              <TabsContent value="anchor" className="">
-                <DataTable columns={anchorColumns} data={project.anchor} />
-                <AnchorForm />
-              </TabsContent>
-            </Tabs>
-            <div className="md:order-1">
-              <div className="mt-0 border-0 p-0">
-                <div className="flex h-full flex-col space-y-4">
-                  <Textarea
-                    placeholder="Write a tagline for an ice cream shop"
-                    className="min-h-[300px] flex-1 p-4 md:min-h-[600px] lg:min-h-[600px]"
-                  />
-                  <div className="flex items-center space-x-2">
-                    <Button>Submit</Button>
-                    <Button variant="secondary">
-                      <span className="sr-only">Show history</span>
-                      <ResetIcon className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
+      <div className="container h-full p-6">
+        <div className="grid h-full items-stretch gap-6 md:grid-cols-[1fr_450px]">
+          <Tabs
+            defaultValue="soil"
+            className="hidden flex-col space-y-4 sm:flex md:order-2"
+          >
+            <div className="grid gap-2">
+              <HoverCard openDelay={200}>
+                <HoverCardTrigger asChild>
+                  <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    설정 값
+                  </span>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-[320px] text-sm" side="left">
+                  입력값의 단위는 표준 단위계를 따릅니다.
+                </HoverCardContent>
+              </HoverCard>
+              <TabsList className="grid grid-cols-4">
+                <TabsTrigger value="soil">지반물성치</TabsTrigger>
+                <TabsTrigger value="excavation">굴착깊이</TabsTrigger>
+                <TabsTrigger value="wall">벽체</TabsTrigger>
+                <TabsTrigger value="anchor">앵커</TabsTrigger>
+              </TabsList>
+            </div>
+            <TabsContent value="soil">
+              <DataTable columns={soilColumns} data={project.soil} />
+              <SoilForm />
+            </TabsContent>
+            <TabsContent value="excavation">
+              <DataTable
+                columns={excavationColumns}
+                data={project.excavation}
+              />
+              <ExcavationForm />
+            </TabsContent>
+            <TabsContent value="wall">
+              <DataTable columns={wallColumns} data={project.wall} />
+              <WallForm />
+            </TabsContent>
+            <TabsContent value="anchor">
+              <DataTable columns={anchorColumns} data={project.anchor} />
+              <AnchorForm />
+            </TabsContent>
+          </Tabs>
+          <div className="md:order-1">
+            <div className="h-full flex flex-col space-y-4">
+              <Analytics />
+              <div className="flex items-center space-x-2 justify-end">
+                <Button onClick={onSubmit}>
+                  <span>계산</span>
+                  <CalculatorIcon className="ml-2 w-4 h-4" />
+                </Button>
+                <Button variant="secondary">
+                  <span className="sr-only">Show history</span>
+                  <ResetIcon className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           </div>

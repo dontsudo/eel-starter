@@ -3,19 +3,22 @@
 import os
 import platform
 import random
-import sys
+
 
 import eel
-
-# Use latest version of Eel from parent directory
-sys.path.insert(1, "../../")
 
 
 @eel.expose  # Expose function to JavaScript
 def say_hello_py(x):
     """Print message from JavaScript on app initialization, then call a JS function."""
-    print("Hello from %s" % x)  # noqa T001
-    # eel.say_hello_js("Python {from within say_hello_py()}!")
+    print("Hello from %s" % x)
+
+    return "ok" if x else "error"
+
+
+@eel.expose
+def calculate_stability(values):
+    return {"stability": 0.5, "error": None}
 
 
 @eel.expose
@@ -46,7 +49,7 @@ def start_eel(develop):
 
     if develop:
         directory = "src"
-        app = None
+        app = "chrome"
         page = {"port": 3000}
     else:
         directory = "build"
@@ -58,7 +61,7 @@ def start_eel(develop):
     eel_kwargs = dict(
         host="localhost",
         port=8080,
-        size=(1280, 800),
+        size=(1024, 820),
     )
     try:
         eel.start(page, mode=app, **eel_kwargs)

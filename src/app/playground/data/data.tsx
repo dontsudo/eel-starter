@@ -105,9 +105,16 @@ export type Wall = z.infer<typeof wallSchema>;
 
 export const anchorSchema = z.object({
   id: z.string().optional(),
-  설치각도: z.coerce.number({
-    invalid_type_error: "설치각도는 숫자여야 합니다.",
-  }),
+  설치각도: z.preprocess(
+    (args) => (args === "" ? undefined : args),
+    z.coerce
+      .number({
+        invalid_type_error: "설치각도는 숫자여야 합니다.",
+      })
+      .positive({
+        message: "설치각도는 양수여야 합니다.",
+      })
+  ),
   단면적: z.preprocess(
     (args) => (args === "" ? undefined : args),
     z.coerce
@@ -142,7 +149,7 @@ export const anchorSchema = z.object({
     (args) => (args === "" ? undefined : args),
     z.coerce
       .number({
-        invalid_type_error: "초기축력는 숫자여야 합니다.",
+        invalid_type_error: "초기축력은 숫자여야 합니다.",
       })
       .positive({
         message: "초기축력는 양수여야 합니다.",

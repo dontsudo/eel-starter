@@ -32,7 +32,7 @@ export const ExcavationForm: React.FC = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid gap-4">
+        <div className="grid gap-2">
           <FormField
             control={form.control}
             name="시작심도"
